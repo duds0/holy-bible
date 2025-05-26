@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:holy_bible/screens/verses/verses_screen.dart';
+import 'package:holy_bible/screens/texts/texts_screen.dart';
 
-class ChapterCard extends StatelessWidget {
-  final int chapter;
+class VerseCard extends StatelessWidget {
+  final int verseNum;
   final String bookName;
+  final int chapter;
   final Color bookColor;
-  const ChapterCard({
+
+  const VerseCard({
     super.key,
-    required this.chapter,
+    required this.verseNum,
     required this.bookName,
+    required this.chapter,
     required this.bookColor,
   });
 
@@ -20,17 +23,18 @@ class ChapterCard extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder:
-                  (context) => VersesScreen(
+                  (context) => TextsScreen(
                     bookName: bookName,
                     chapter: chapter,
                     bookColor: bookColor,
+                    initialVerse: verseNum,
                   ),
             ),
           ),
       child: Container(
         alignment: Alignment.center,
         child: Text(
-          chapter.toString(),
+          verseNum.toString(),
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w500,

@@ -8,13 +8,14 @@ class TextsScreen extends StatefulWidget {
   final String bookName;
   int chapter;
   final Color bookColor;
-  final int initialVerse = 20;
+  int initialVerse;
 
   TextsScreen({
     super.key,
     required this.bookName,
     required this.chapter,
     required this.bookColor,
+    required this.initialVerse,
   });
 
   @override
@@ -23,17 +24,21 @@ class TextsScreen extends StatefulWidget {
 
 class _TextsScreenState extends State<TextsScreen> {
   double fontSize = 16;
-  late List<dynamic> versesToList = [];
+  late List<dynamic> textsToList = [];
 
   final ScrollController _scrollController = ScrollController();
   final Map<int, GlobalKey> _verseKeys = {};
 
-  Future<void> getVerses() async {
-    final List<dynamic> verses = await ChapterAndVerseRepository()
-        .getVersesOrChapters(widget.bookName, chapter: widget.chapter);
+  Future<void> getTexts() async {
+    final List<dynamic> texts = await ChapterAndVerseRepository()
+        .getVersesOrChapters(
+          widget.bookName,
+          chapter: widget.chapter,
+          verse: widget.initialVerse,
+        );
 
     setState(() {
-      versesToList = verses;
+      textsToList = texts;
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -69,19 +74,27 @@ class _TextsScreenState extends State<TextsScreen> {
 
   Future<void> _nextChapter() async {
     final List<dynamic> verses = await ChapterAndVerseRepository()
-        .getVersesOrChapters(widget.bookName, chapter: widget.chapter += 1);
+        .getVersesOrChapters(
+          widget.bookName,
+          chapter: widget.chapter += 1,
+          verse: widget.initialVerse,
+        );
 
     setState(() {
-      versesToList = verses;
+      textsToList = verses;
     });
   }
 
   Future<void> _previousChapter() async {
     final List<dynamic> verses = await ChapterAndVerseRepository()
-        .getVersesOrChapters(widget.bookName, chapter: widget.chapter -= 1);
+        .getVersesOrChapters(
+          widget.bookName,
+          chapter: widget.chapter -= 1,
+          verse: widget.initialVerse,
+        );
 
     setState(() {
-      versesToList = verses;
+      textsToList = verses;
     });
   }
 
@@ -106,7 +119,7 @@ class _TextsScreenState extends State<TextsScreen> {
 
   @override
   void initState() {
-    getVerses();
+    getTexts();
     _loadFontSize();
     super.initState();
   }
@@ -165,7 +178,7 @@ class _TextsScreenState extends State<TextsScreen> {
             padding: EdgeInsets.only(bottom: 96),
             child: Column(
               children:
-                  versesToList.map((verseMap) {
+                  textsToList.map((verseMap) {
                     final key = GlobalKey();
                     _verseKeys[verseMap.verse] = key;
 
@@ -187,6 +200,8 @@ class _TextsScreenState extends State<TextsScreen> {
               onTap: () async {
                 if (widget.chapter > 1) {
                   _previousChapter();
+                  widget.initialVerse = 1;
+                  _scrollToInitialVerse();
                 }
               },
               child: Container(
@@ -210,6 +225,8 @@ class _TextsScreenState extends State<TextsScreen> {
               onTap: () async {
                 if (widget.chapter < await _numOfChapters()) {
                   _nextChapter();
+                  widget.initialVerse = 1;
+                  _scrollToInitialVerse();
                 }
               },
               child: Container(

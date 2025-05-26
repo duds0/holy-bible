@@ -10,6 +10,7 @@ class ChapterAndVerseRepository {
   Future<List<dynamic>> getVersesOrChapters(
     String bookName, {
     int? chapter,
+    int? verse,
   }) async {
     final Database database = await helper.database;
 
@@ -26,27 +27,42 @@ class ChapterAndVerseRepository {
       );
 
       return result;
-    } else {
+    }
+
+    if (verse == null) {
       final List<Map<String, dynamic>> result = await database.rawQuery(
         '''
+    SELECT v.verse
+    FROM verse v
+    JOIN book b ON v.book_id = b.id
+    WHERE b.name = ? AND v.chapter = ?
+    ORDER BY v.verse
+    ''',
+        [bookName, chapter],
+      );
+
+      return result.map((row) => row['verse'] as int).toList();
+    }
+
+    final List<Map<String, dynamic>> result = await database.rawQuery(
+      '''
       SELECT v.id, v.book_id, b.name AS book_name, v.chapter, v.verse, v.text
       FROM verse v
       JOIN book b ON v.book_id = b.id
       WHERE b.name = ? AND v.chapter = ?
       ORDER BY v.verse
     ''',
-        [bookName, chapter],
-      );
+      [bookName, chapter],
+    );
 
-      return result.map((verseMap) {
-        return Verse(
-          id: verseMap['id'],
-          bookId: verseMap['book_id'],
-          chapter: verseMap['chapter'],
-          verse: verseMap['verse'],
-          text: verseMap['text'],
-        );
-      }).toList();
-    }
+    return result.map((verseMap) {
+      return Verse(
+        id: verseMap['id'],
+        bookId: verseMap['book_id'],
+        chapter: verseMap['chapter'],
+        verse: verseMap['verse'],
+        text: verseMap['text'],
+      );
+    }).toList();
   }
 }
