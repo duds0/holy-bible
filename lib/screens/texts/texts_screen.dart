@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:holy_bible/database/repositories/chapter_and_verse_repository.dart';
-import 'package:holy_bible/screens/verses/widgets/text_card.dart';
+import 'package:holy_bible/screens/texts/widgets/text_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: must_be_immutable
-class VersesScreen extends StatefulWidget {
+class TextsScreen extends StatefulWidget {
   final String bookName;
   int chapter;
   final Color bookColor;
+  final int initialVerse = 20;
 
-  VersesScreen({
+  TextsScreen({
     super.key,
     required this.bookName,
     required this.chapter,
@@ -17,12 +18,15 @@ class VersesScreen extends StatefulWidget {
   });
 
   @override
-  State<VersesScreen> createState() => _VersesScreenState();
+  State<TextsScreen> createState() => _TextsScreenState();
 }
 
-class _VersesScreenState extends State<VersesScreen> {
+class _TextsScreenState extends State<TextsScreen> {
   double fontSize = 16;
   late List<dynamic> versesToList = [];
+
+  final ScrollController _scrollController = ScrollController();
+  final Map<int, GlobalKey> _verseKeys = {};
 
   Future<void> getVerses() async {
     final List<dynamic> verses = await ChapterAndVerseRepository()
@@ -31,6 +35,21 @@ class _VersesScreenState extends State<VersesScreen> {
     setState(() {
       versesToList = verses;
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToInitialVerse();
+    });
+  }
+
+  void _scrollToInitialVerse() {
+    final key = _verseKeys[widget.initialVerse];
+    if (key != null && key.currentContext != null) {
+      Scrollable.ensureVisible(
+        key.currentContext!,
+        duration: Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   Future<void> _saveFontSize() async {
@@ -141,16 +160,25 @@ class _VersesScreenState extends State<VersesScreen> {
       ),
       body: Stack(
         children: [
-          ListView.builder(
+          SingleChildScrollView(
+            controller: _scrollController,
             padding: EdgeInsets.only(bottom: 96),
-            itemCount: versesToList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return TextCard(
-                verseNum: versesToList[index].verse,
-                verseText: versesToList[index].text,
-                fontSize: fontSize,
-              );
-            },
+            child: Column(
+              children:
+                  versesToList.map((verseMap) {
+                    final key = GlobalKey();
+                    _verseKeys[verseMap.verse] = key;
+
+                    return SizedBox(
+                      key: key,
+                      child: TextCard(
+                        verseNum: verseMap.verse,
+                        verseText: verseMap.text,
+                        fontSize: fontSize,
+                      ),
+                    );
+                  }).toList(),
+            ),
           ),
           Positioned(
             bottom: 40,
