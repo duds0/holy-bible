@@ -49,11 +49,7 @@ class _TextsScreenState extends State<TextsScreen> {
   void _scrollToInitialVerse() {
     final key = _verseKeys[widget.initialVerse];
     if (key != null && key.currentContext != null) {
-      Scrollable.ensureVisible(
-        key.currentContext!,
-        duration: Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
+      Scrollable.ensureVisible(key.currentContext!);
     }
   }
 
@@ -199,7 +195,7 @@ class _TextsScreenState extends State<TextsScreen> {
             child: InkWell(
               onTap: () async {
                 if (widget.chapter > 1) {
-                  _previousChapter();
+                  await _previousChapter();
                   widget.initialVerse = 1;
                   _scrollToInitialVerse();
                 }
@@ -224,7 +220,7 @@ class _TextsScreenState extends State<TextsScreen> {
             child: InkWell(
               onTap: () async {
                 if (widget.chapter < await _numOfChapters()) {
-                  _nextChapter();
+                  await _nextChapter();
                   widget.initialVerse = 1;
                   _scrollToInitialVerse();
                 }
