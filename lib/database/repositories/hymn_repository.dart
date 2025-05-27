@@ -31,8 +31,6 @@ class HymnRepository {
       whereArgs: [id],
     );
 
-    // if (result.isEmpty) return '[Letra não encontrada]';
-
     final rawLyrics = result.first['lyrics'] as String;
     return parseStanzasFromXml(rawLyrics);
   }
@@ -68,26 +66,4 @@ class HymnRepository {
 
     return stanzas;
   }
-  // String _parseLyricsFromXml(String xmlString) {
-  //   try {
-  //     final document = XmlDocument.parse(xmlString);
-  //     final verses = document.findAllElements('verse');
-
-  //     return verses
-  //         .map((v) {
-  //           final rawText = v.innerText;
-  //           final cleanedLines =
-  //               rawText
-  //                   .split('\n')
-  //                   .map((line) => line.trim())
-  //                   .where((line) => line.isNotEmpty && line != '[---]')
-  //                   .toList();
-
-  //           return cleanedLines.join('\n');
-  //         })
-  //         .join('\n\n');
-  //   } catch (e) {
-  //     return '[Erro ao processar a letra]';
-  //   }
-  // }
 }
