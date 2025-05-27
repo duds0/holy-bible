@@ -16,6 +16,7 @@ class TextCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      alignment: Alignment.centerLeft,
       margin: EdgeInsets.symmetric(vertical: 4, horizontal: 4),
       child: RichText(
         text: TextSpan(
