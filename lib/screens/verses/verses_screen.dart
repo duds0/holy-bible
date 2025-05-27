@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:holy_bible/database/repositories/chapter_and_verse_repository.dart';
-import 'package:holy_bible/screens/verses/widgets/verse_card.dart';
+import 'package:holy_bible/screens/texts/texts_screen.dart';
 
 class VersesScreen extends StatefulWidget {
   final String bookName;
@@ -73,11 +73,31 @@ class _VersesScreenState extends State<VersesScreen> {
               children:
                   versesToList
                       .map(
-                        (verseMap) => VerseCard(
-                          verseNum: verseMap,
-                          bookName: widget.bookName,
-                          chapter: widget.chapter,
-                          bookColor: widget.bookColor,
+                        (verseMap) => InkWell(
+                          onTap:
+                              () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => TextsScreen(
+                                        bookName: widget.bookName,
+                                        chapter: widget.chapter,
+                                        bookColor: widget.bookColor,
+                                        initialVerse: verseMap,
+                                      ),
+                                ),
+                              ),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              verseMap.toString(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
                         ),
                       )
                       .toList(),

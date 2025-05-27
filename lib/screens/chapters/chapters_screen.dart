@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:holy_bible/database/repositories/chapter_and_verse_repository.dart';
-import 'package:holy_bible/screens/chapters/widgets/chapter_card.dart';
+import 'package:holy_bible/screens/verses/verses_screen.dart';
 
 class ChaptersScreen extends StatefulWidget {
   const ChaptersScreen({
@@ -70,10 +70,30 @@ class _ChaptersScreenState extends State<ChaptersScreen> {
               children:
                   chaptersToList
                       .map(
-                        (chapterMap) => ChapterCard(
-                          chapter: chapterMap['chapter'],
-                          bookName: widget.bookName,
-                          bookColor: widget.bookColor,
+                        (chapterMap) => InkWell(
+                          onTap:
+                              () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => VersesScreen(
+                                        bookName: widget.bookName,
+                                        chapter: chapterMap['chapter'],
+                                        bookColor: widget.bookColor,
+                                      ),
+                                ),
+                              ),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              chapterMap['chapter'].toString(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
                         ),
                       )
                       .toList(),
