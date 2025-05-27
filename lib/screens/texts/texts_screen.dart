@@ -1,6 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:holy_bible/database/repositories/chapter_and_verse_repository.dart';
+import 'package:holy_bible/providers/chapter_count.dart';
 import 'package:holy_bible/screens/texts/widgets/text_card.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: must_be_immutable
@@ -28,6 +32,8 @@ class _TextsScreenState extends State<TextsScreen> {
 
   final ScrollController _scrollController = ScrollController();
   final Map<int, GlobalKey> _verseKeys = {};
+
+  bool changedChapter = false;
 
   Future<void> getTexts() async {
     final List<dynamic> texts = await ChapterAndVerseRepository()
@@ -68,7 +74,7 @@ class _TextsScreenState extends State<TextsScreen> {
     }
   }
 
-  Future<void> _nextChapter() async {
+  Future<void> _nextChapter(BuildContext context) async {
     final List<dynamic> verses = await ChapterAndVerseRepository()
         .getVersesOrChapters(
           widget.bookName,
@@ -79,9 +85,12 @@ class _TextsScreenState extends State<TextsScreen> {
     setState(() {
       textsToList = verses;
     });
+
+    changedChapter = true;
+    context.read<ChapterCount>().increaseChapter(widget.chapter);
   }
 
-  Future<void> _previousChapter() async {
+  Future<void> _previousChapter(BuildContext context) async {
     final List<dynamic> verses = await ChapterAndVerseRepository()
         .getVersesOrChapters(
           widget.bookName,
@@ -92,6 +101,9 @@ class _TextsScreenState extends State<TextsScreen> {
     setState(() {
       textsToList = verses;
     });
+
+    changedChapter = true;
+    context.read<ChapterCount>().decreaseChapter(widget.chapter);
   }
 
   Future<int> _numOfChapters() async {
@@ -124,6 +136,10 @@ class _TextsScreenState extends State<TextsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context, changedChapter),
+          icon: Icon(Icons.arrow_back),
+        ),
         centerTitle: true,
         forceMaterialTransparency: true,
         title: Container(
@@ -195,7 +211,7 @@ class _TextsScreenState extends State<TextsScreen> {
             child: InkWell(
               onTap: () async {
                 if (widget.chapter > 1) {
-                  await _previousChapter();
+                  await _previousChapter(context);
                   widget.initialVerse = 1;
                   _scrollToInitialVerse();
                 }
@@ -220,7 +236,7 @@ class _TextsScreenState extends State<TextsScreen> {
             child: InkWell(
               onTap: () async {
                 if (widget.chapter < await _numOfChapters()) {
-                  await _nextChapter();
+                  await _nextChapter(context);
                   widget.initialVerse = 1;
                   _scrollToInitialVerse();
                 }
