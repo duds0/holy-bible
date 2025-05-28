@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
 class ChapterCount with ChangeNotifier {
-  int _newChapter = 1;
-  int get newChapter => _newChapter;
+  int _chapter = 1;
+  int get chapter => _chapter;
 
-  void increaseChapter(int actualChapter) {
-    _newChapter = actualChapter;
+  void updateChapter(int chapter) {
+    _chapter = chapter;
     notifyListeners();
   }
 
-  void decreaseChapter(int actualChapter) {
-    _newChapter = actualChapter;
+  void nextChapter() {
+    _chapter += 1;
+    notifyListeners();
+  }
+
+  void previousChapter() {
+    _chapter -= 1;
     notifyListeners();
   }
 }

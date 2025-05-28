@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:holy_bible/database/repositories/chapter_and_verse_repository.dart';
+import 'package:holy_bible/providers/chapter_count.dart';
 import 'package:holy_bible/screens/verses/verses_screen.dart';
+import 'package:provider/provider.dart';
 
 class ChaptersScreen extends StatefulWidget {
+  final String bookName;
+  final Color bookColor;
+
   const ChaptersScreen({
     super.key,
     required this.bookName,
     required this.bookColor,
   });
-  final String bookName;
-  final Color bookColor;
 
   @override
   State<ChaptersScreen> createState() => _ChaptersScreenState();
@@ -61,7 +64,6 @@ class _ChaptersScreenState extends State<ChaptersScreen> {
               ),
             ),
           ),
-
           Expanded(
             child: GridView.count(
               mainAxisSpacing: 24,
@@ -77,8 +79,13 @@ class _ChaptersScreenState extends State<ChaptersScreen> {
                                 MaterialPageRoute(
                                   builder:
                                       (context) => VersesScreen(
+                                        getChapter:
+                                            () => context
+                                                .read<ChapterCount>()
+                                                .updateChapter(
+                                                  chapterMap['chapter'],
+                                                ),
                                         bookName: widget.bookName,
-                                        chapter: chapterMap['chapter'],
                                         bookColor: widget.bookColor,
                                       ),
                                 ),

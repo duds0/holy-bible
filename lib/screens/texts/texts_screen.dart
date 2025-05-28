@@ -10,14 +10,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 // ignore: must_be_immutable
 class TextsScreen extends StatefulWidget {
   final String bookName;
-  int chapter;
   final Color bookColor;
   int initialVerse;
 
   TextsScreen({
     super.key,
     required this.bookName,
-    required this.chapter,
     required this.bookColor,
     required this.initialVerse,
   });
@@ -39,7 +37,7 @@ class _TextsScreenState extends State<TextsScreen> {
     final List<dynamic> texts = await ChapterAndVerseRepository()
         .getVersesOrChapters(
           widget.bookName,
-          chapter: widget.chapter,
+          chapter: context.read<ChapterCount>().chapter,
           verse: widget.initialVerse,
         );
 
@@ -75,10 +73,12 @@ class _TextsScreenState extends State<TextsScreen> {
   }
 
   Future<void> _nextChapter(BuildContext context) async {
+    context.read<ChapterCount>().nextChapter();
+
     final List<dynamic> verses = await ChapterAndVerseRepository()
         .getVersesOrChapters(
           widget.bookName,
-          chapter: widget.chapter += 1,
+          chapter: context.read<ChapterCount>().chapter,
           verse: widget.initialVerse,
         );
 
@@ -87,14 +87,15 @@ class _TextsScreenState extends State<TextsScreen> {
     });
 
     changedChapter = true;
-    context.read<ChapterCount>().increaseChapter(widget.chapter);
   }
 
   Future<void> _previousChapter(BuildContext context) async {
+    context.read<ChapterCount>().previousChapter();
+
     final List<dynamic> verses = await ChapterAndVerseRepository()
         .getVersesOrChapters(
           widget.bookName,
-          chapter: widget.chapter -= 1,
+          chapter: context.read<ChapterCount>().chapter,
           verse: widget.initialVerse,
         );
 
@@ -103,7 +104,6 @@ class _TextsScreenState extends State<TextsScreen> {
     });
 
     changedChapter = true;
-    context.read<ChapterCount>().decreaseChapter(widget.chapter);
   }
 
   Future<int> _numOfChapters() async {
@@ -134,6 +134,8 @@ class _TextsScreenState extends State<TextsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final int chapter =
+        Provider.of<ChapterCount>(context, listen: false).chapter;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -149,7 +151,7 @@ class _TextsScreenState extends State<TextsScreen> {
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
-            '${_fixBigBooksName()} ${widget.chapter}',
+            '${_fixBigBooksName()} $chapter',
             overflow: TextOverflow.visible,
             style: TextStyle(
               fontSize: 20,
@@ -183,79 +185,89 @@ class _TextsScreenState extends State<TextsScreen> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            controller: _scrollController,
-            padding: EdgeInsets.only(bottom: 96),
-            child: Column(
-              children:
-                  textsToList.map((verseMap) {
-                    final key = GlobalKey();
-                    _verseKeys[verseMap.verse] = key;
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            return;
+          }
 
-                    return SizedBox(
-                      key: key,
-                      child: TextCard(
-                        verseNum: verseMap.verse,
-                        verseText: verseMap.text,
-                        fontSize: fontSize,
-                      ),
-                    );
-                  }).toList(),
+          Navigator.pop(context, changedChapter);
+        },
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              controller: _scrollController,
+              padding: EdgeInsets.only(bottom: 96),
+              child: Column(
+                children:
+                    textsToList.map((verseMap) {
+                      final key = GlobalKey();
+                      _verseKeys[verseMap.verse] = key;
+
+                      return SizedBox(
+                        key: key,
+                        child: TextCard(
+                          verseNum: verseMap.verse,
+                          verseText: verseMap.text,
+                          fontSize: fontSize,
+                        ),
+                      );
+                    }).toList(),
+              ),
             ),
-          ),
-          Positioned(
-            bottom: 40,
-            left: 16,
-            child: InkWell(
-              onTap: () async {
-                if (widget.chapter > 1) {
-                  await _previousChapter(context);
-                  widget.initialVerse = 1;
-                  _scrollToInitialVerse();
-                }
-              },
-              child: Container(
-                padding: EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: widget.bookColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.keyboard_arrow_left,
-                  color: Colors.black,
-                  size: 32,
+            Positioned(
+              bottom: 40,
+              left: 16,
+              child: InkWell(
+                onTap: () async {
+                  if (chapter > 1) {
+                    await _previousChapter(context);
+                    widget.initialVerse = 1;
+                    _scrollToInitialVerse();
+                  }
+                },
+                child: Container(
+                  padding: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: widget.bookColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.keyboard_arrow_left,
+                    color: Colors.black,
+                    size: 32,
+                  ),
                 ),
               ),
             ),
-          ),
-          Positioned(
-            bottom: 40,
-            right: 16,
-            child: InkWell(
-              onTap: () async {
-                if (widget.chapter < await _numOfChapters()) {
-                  await _nextChapter(context);
-                  widget.initialVerse = 1;
-                  _scrollToInitialVerse();
-                }
-              },
-              child: Container(
-                padding: EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: widget.bookColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.keyboard_arrow_right,
-                  color: Colors.black,
-                  size: 32,
+            Positioned(
+              bottom: 40,
+              right: 16,
+              child: InkWell(
+                onTap: () async {
+                  if (chapter < await _numOfChapters()) {
+                    await _nextChapter(context);
+                    widget.initialVerse = 1;
+                    _scrollToInitialVerse();
+                  }
+                },
+                child: Container(
+                  padding: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: widget.bookColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.keyboard_arrow_right,
+                    color: Colors.black,
+                    size: 32,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

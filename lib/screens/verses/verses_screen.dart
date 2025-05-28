@@ -7,13 +7,13 @@ import 'package:provider/provider.dart';
 class VersesScreen extends StatefulWidget {
   final String bookName;
   final Color bookColor;
-  final int chapter;
+  final Function getChapter;
 
   const VersesScreen({
     super.key,
     required this.bookName,
-    required this.chapter,
     required this.bookColor,
+    required this.getChapter,
   });
 
   @override
@@ -22,11 +22,14 @@ class VersesScreen extends StatefulWidget {
 
 class _VersesScreenState extends State<VersesScreen> {
   late List<dynamic> versesToList = [];
-  bool chapterCountController = false;
 
   Future<void> _getVerses() async {
+    widget.getChapter();
     final List<dynamic> verses = await ChapterAndVerseRepository()
-        .getVersesOrChapters(widget.bookName, chapter: widget.chapter);
+        .getVersesOrChapters(
+          widget.bookName,
+          chapter: context.read<ChapterCount>().chapter,
+        );
 
     setState(() {
       versesToList = verses;
@@ -34,28 +37,30 @@ class _VersesScreenState extends State<VersesScreen> {
   }
 
   Future<void> _updateVerses() async {
-    final int newChapter =
-        Provider.of<ChapterCount>(context, listen: false).newChapter;
-
-    final List<dynamic> versesUpdated = await ChapterAndVerseRepository()
-        .getVersesOrChapters(widget.bookName, chapter: newChapter);
+    final List<dynamic> verses = await ChapterAndVerseRepository()
+        .getVersesOrChapters(
+          widget.bookName,
+          chapter: context.read<ChapterCount>().chapter,
+        );
 
     setState(() {
-      versesToList = versesUpdated;
+      versesToList = verses;
     });
-    chapterCountController = true;
   }
 
   @override
   void initState() {
-    _getVerses();
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getVerses();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final int newChapter =
-        Provider.of<ChapterCount>(context, listen: false).newChapter;
+    final int chapter =
+        Provider.of<ChapterCount>(context, listen: false).chapter;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -74,7 +79,7 @@ class _VersesScreenState extends State<VersesScreen> {
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
-              '${widget.bookName} ${chapterCountController ? newChapter : widget.chapter}',
+              '${widget.bookName} $chapter',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -99,7 +104,6 @@ class _VersesScreenState extends State<VersesScreen> {
                                 builder:
                                     (context) => TextsScreen(
                                       bookName: widget.bookName,
-                                      chapter: widget.chapter,
                                       bookColor: widget.bookColor,
                                       initialVerse: verseMap,
                                     ),
