@@ -34,11 +34,7 @@ class _HymnsScreenState extends State<HymnsScreen> {
       appBar: AppBar(
         title: Text(
           'Cantor Cristão',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
         forceMaterialTransparency: true,
@@ -48,10 +44,7 @@ class _HymnsScreenState extends State<HymnsScreen> {
                 () => setState(() {
                   isWithTitle = !isWithTitle;
                 }),
-            icon: Icon(
-              isWithTitle ? Icons.numbers : Icons.text_format,
-              color: Colors.white,
-            ),
+            icon: Icon(isWithTitle ? Icons.numbers : Icons.text_format),
           ),
         ],
       ),

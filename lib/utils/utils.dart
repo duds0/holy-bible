@@ -1,6 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Utils {
+  static Future<void> saveThemeMode(bool isDarkMode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("isDarkMode", isDarkMode);
+  }
+
+  static Future<bool> getThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedThemeMode = prefs.getBool('isDarkMode');
+
+    if (savedThemeMode == null) return true;
+
+    return savedThemeMode;
+  }
+
   static const Map<String, Color> bibleDivisionColors = {
     'lei': Color(0xFFF6D776),
     'historicos': Color(0xFFFFAB76),

@@ -56,11 +56,7 @@ class _SongScreenState extends State<LyricScreen> {
         centerTitle: true,
         title: Text(
           _titleFormatted(widget.hymnTitle),
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
       ),
       body: SingleChildScrollView(
@@ -110,7 +106,6 @@ class _SongScreenState extends State<LyricScreen> {
                                 style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.white,
                                 ),
                               ),
                             ],

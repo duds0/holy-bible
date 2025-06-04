@@ -18,18 +18,18 @@ class TextCard extends StatelessWidget {
     return Container(
       alignment: Alignment.centerLeft,
       margin: EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-      child: RichText(
-        text: TextSpan(
-          text: ' ${verseNum.toString()} ',
-          style: TextStyle(
-            fontSize: fontSize / 1.33,
-            color: Colors.grey.shade500,
-          ),
+      child: Text.rich(
+        TextSpan(
           children: [
             TextSpan(
-              text: verseText,
-              style: TextStyle(fontSize: fontSize, color: Colors.white),
+              text: ' ${verseNum.toString()} ',
+              style: TextStyle(
+                fontSize: fontSize / 1.33,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
             ),
+            TextSpan(text: verseText, style: TextStyle(fontSize: fontSize)),
           ],
         ),
       ),

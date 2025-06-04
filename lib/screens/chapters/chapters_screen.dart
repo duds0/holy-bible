@@ -95,7 +95,6 @@ class _ChaptersScreenState extends State<ChaptersScreen> {
                             child: Text(
                               chapterMap['chapter'].toString(),
                               style: TextStyle(
-                                color: Colors.white,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 20,
                               ),

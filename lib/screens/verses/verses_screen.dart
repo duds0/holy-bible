@@ -119,7 +119,6 @@ class _VersesScreenState extends State<VersesScreen> {
                             child: Text(
                               verseMap.toString(),
                               style: TextStyle(
-                                color: Colors.white,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 20,
                               ),

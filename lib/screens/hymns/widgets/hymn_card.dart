@@ -46,7 +46,6 @@ class HymnCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
                       ),
                     ),
                     SizedBox(width: 8),
@@ -57,7 +56,6 @@ class HymnCard extends StatelessWidget {
                           decoration: TextDecoration.underline,
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -69,11 +67,7 @@ class HymnCard extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   int.parse(hymnNum).toString(),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 20,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
                 ),
               ),
     );

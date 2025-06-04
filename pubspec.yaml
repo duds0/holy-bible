@@ -40,6 +40,22 @@ dependencies:
   shared_preferences: ^2.5.3
   xml: ^6.5.0
   provider: ^6.1.5
+  flutter_native_splash: ^2.4.6
+  flutter_launcher_icons: ^0.14.3
+
+flutter_native_splash:
+  color: "#2F2F2F"
+  image: "lib/assets/imgs/holyBibleIcon.png"
+  android: true
+  ios: true
+
+flutter_launcher_icons:
+  image_path: "lib/assets/imgs/holyBible.png"
+  ios: true
+  remove_alpha_ios: true
+  android: "launcher_icon"
+  adaptive_icon_background: "#2F2F2F"
+  adaptive_icon_foreground: "lib/assets/imgs/holyBibleIcon.png"
 
 dev_dependencies:
   flutter_test:

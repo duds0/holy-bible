@@ -6,7 +6,13 @@ import 'package:holy_bible/screens/hymns/hymns_screen.dart';
 import 'package:holy_bible/utils/utils.dart';
 
 class BooksScreen extends StatefulWidget {
-  const BooksScreen({super.key});
+  final bool darkMode;
+  final VoidCallback switchBrightness;
+  const BooksScreen({
+    super.key,
+    required this.switchBrightness,
+    required this.darkMode,
+  });
 
   @override
   State<BooksScreen> createState() => _BooksScreensState();
@@ -65,6 +71,11 @@ class _BooksScreensState extends State<BooksScreen> {
       appBar: AppBar(
         forceMaterialTransparency: true,
         centerTitle: true,
+        leading: IconButton(
+          onPressed: widget.switchBrightness,
+          icon:
+              widget.darkMode ? Icon(Icons.light_mode) : Icon(Icons.dark_mode),
+        ),
         title:
             isSearching
                 ? TextField(
@@ -83,11 +94,11 @@ class _BooksScreensState extends State<BooksScreen> {
         actions: [
           isSearching
               ? IconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
+                icon: const Icon(Icons.close),
                 onPressed: _stopSearch,
               )
               : IconButton(
-                icon: const Icon(Icons.search, color: Colors.white),
+                icon: const Icon(Icons.search),
                 onPressed: _startSearch,
               ),
           IconButton(
@@ -96,7 +107,7 @@ class _BooksScreensState extends State<BooksScreen> {
                   context,
                   MaterialPageRoute(builder: (context) => HymnsScreen()),
                 ),
-            icon: Icon(Icons.music_note, color: Colors.white),
+            icon: Icon(Icons.music_note),
           ),
         ],
       ),
