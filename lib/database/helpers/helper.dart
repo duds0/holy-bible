@@ -26,15 +26,4 @@ class DatabaseHelper {
     _database = await openDatabase(path, readOnly: true);
     return _database!;
   }
-
-  Future<Map<String, dynamic>> queryById(String tableName, int id) async {
-    Database db = await database;
-    List<Map<String, dynamic>> results = await db.query(
-      tableName,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-
-    return results.single;
-  }
 }
