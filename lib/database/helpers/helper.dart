@@ -9,21 +9,23 @@ class DatabaseHelper {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await initDatabase();
+    _database = await _initDatabase();
     return _database!;
   }
 
-  static Future<Database> initDatabase() async {
+  Future<Database> _initDatabase() async {
     final documentsDirectory = await getApplicationDocumentsDirectory();
     final path = join(documentsDirectory.path, 'ARA.sqlite');
 
     if (!await File(path).exists()) {
       final data = await rootBundle.load('lib/database/attachments/ARA.sqlite');
-      final bytes = data.buffer.asUint8List();
+      final bytes = data.buffer.asUint8List(
+        data.offsetInBytes,
+        data.lengthInBytes,
+      );
       await File(path).writeAsBytes(bytes);
     }
 
-    _database = await openDatabase(path, readOnly: true);
-    return _database!;
+    return await openDatabase(path, readOnly: true);
   }
 }

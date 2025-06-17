@@ -14,14 +14,12 @@ class DatabaseHelperCC {
   }
 
   Future<Database> _initDatabase() async {
-    Directory documentsDir = await getApplicationDocumentsDirectory();
-    String path = join(documentsDir.path, 'cc.sqlite');
+    final documentsDirectory = await getApplicationDocumentsDirectory();
+    final path = join(documentsDirectory.path, 'cc.sqlite');
 
-    if (!File(path).existsSync()) {
-      ByteData data = await rootBundle.load(
-        'lib/database/attachments/cc.sqlite',
-      );
-      List<int> bytes = data.buffer.asUint8List(
+    if (!await File(path).exists()) {
+      final data = await rootBundle.load('lib/database/attachments/cc.sqlite');
+      final bytes = data.buffer.asUint8List(
         data.offsetInBytes,
         data.lengthInBytes,
       );
