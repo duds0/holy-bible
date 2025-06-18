@@ -5,7 +5,9 @@ import 'package:sqflite/sqflite.dart';
 class ChapterAndVerseRepository {
   static const String tableName = 'verse';
 
-  final DatabaseHelper helper = DatabaseHelper();
+  final DatabaseHelper helper;
+
+  ChapterAndVerseRepository({required this.helper});
 
   Future<List<dynamic>> getVersesOrChapters(
     String bookName, {
@@ -41,7 +43,7 @@ class ChapterAndVerseRepository {
         [bookName, chapter],
       );
 
-      return result.map((row) => row['verse'] as int).toList();
+      return result.map((row) => row['verse']).toList();
     }
 
     final List<Map<String, dynamic>> result = await database.rawQuery(

@@ -1,9 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
-import 'package:holy_bible/database/repositories/chapter_and_verse_repository.dart';
 import 'package:holy_bible/providers/chapter_count.dart';
+import 'package:holy_bible/providers/version_provider.dart';
 import 'package:holy_bible/screens/texts/widgets/text_card.dart';
+import 'package:holy_bible/screens/texts/widgets/version_card.dart';
+import 'package:holy_bible/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,8 +33,12 @@ class _TextsScreenState extends State<TextsScreen> {
 
   bool changedChapter = false;
 
+  bool isSelectingVersion = false;
+
   Future<void> getTexts() async {
-    final List<dynamic> texts = await ChapterAndVerseRepository()
+    final dbVersion = Provider.of<VersionProvider>(context, listen: false);
+
+    final List<dynamic> texts = await dbVersion.chapterAndVerseRepository
         .getVersesOrChapters(
           widget.bookName,
           chapter: context.read<ChapterCount>().chapter,
@@ -74,8 +78,9 @@ class _TextsScreenState extends State<TextsScreen> {
 
   Future<void> _nextChapter(BuildContext context) async {
     context.read<ChapterCount>().nextChapter();
+    final dbVersion = Provider.of<VersionProvider>(context, listen: false);
 
-    final List<dynamic> verses = await ChapterAndVerseRepository()
+    final List<dynamic> verses = await dbVersion.chapterAndVerseRepository
         .getVersesOrChapters(
           widget.bookName,
           chapter: context.read<ChapterCount>().chapter,
@@ -91,8 +96,9 @@ class _TextsScreenState extends State<TextsScreen> {
 
   Future<void> _previousChapter(BuildContext context) async {
     context.read<ChapterCount>().previousChapter();
+    final dbVersion = Provider.of<VersionProvider>(context, listen: false);
 
-    final List<dynamic> verses = await ChapterAndVerseRepository()
+    final List<dynamic> verses = await dbVersion.chapterAndVerseRepository
         .getVersesOrChapters(
           widget.bookName,
           chapter: context.read<ChapterCount>().chapter,
@@ -107,7 +113,9 @@ class _TextsScreenState extends State<TextsScreen> {
   }
 
   Future<int> _numOfChapters() async {
-    final List<dynamic> chapters = await ChapterAndVerseRepository()
+    final dbVersion = Provider.of<VersionProvider>(context, listen: false);
+
+    final List<dynamic> chapters = await dbVersion.chapterAndVerseRepository
         .getVersesOrChapters(widget.bookName);
 
     return chapters.length;
@@ -134,8 +142,18 @@ class _TextsScreenState extends State<TextsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final int chapter =
-        Provider.of<ChapterCount>(context, listen: false).chapter;
+    final currentVersionName =
+        Provider.of<VersionProvider>(context).currentVersionName;
+
+    final sortedVersions = List.from(Constants.versions);
+
+    sortedVersions.sort((a, b) {
+      if (a.nickName == currentVersionName) return 1;
+      if (b.nickName == currentVersionName) return -1;
+      return 0;
+    });
+
+    final int chapter = Provider.of<ChapterCount>(context).chapter;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -216,54 +234,102 @@ class _TextsScreenState extends State<TextsScreen> {
                     }).toList(),
               ),
             ),
-            Positioned(
-              bottom: 40,
-              left: 16,
-              child: InkWell(
-                onTap: () async {
-                  if (chapter > 1) {
-                    await _previousChapter(context);
-                    widget.initialVerse = 1;
-                    _scrollToInitialVerse();
-                  }
-                },
-                child: Container(
-                  padding: EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: widget.bookColor,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.keyboard_arrow_left,
-                    color: Colors.black,
-                    size: 32,
-                  ),
-                ),
-              ),
-            ),
+
             Positioned(
               bottom: 40,
               right: 16,
-              child: InkWell(
-                onTap: () async {
-                  if (chapter < await _numOfChapters()) {
-                    await _nextChapter(context);
-                    widget.initialVerse = 1;
-                    _scrollToInitialVerse();
-                  }
-                },
-                child: Container(
-                  padding: EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: widget.bookColor,
-                    borderRadius: BorderRadius.circular(8),
+              left: 16,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: () async {
+                      if (chapter > 1) {
+                        await _previousChapter(context);
+                        widget.initialVerse = 1;
+                        _scrollToInitialVerse();
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: widget.bookColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.keyboard_arrow_left,
+                        color: Colors.black,
+                        size: 32,
+                      ),
+                    ),
                   ),
-                  child: Icon(
-                    Icons.keyboard_arrow_right,
-                    color: Colors.black,
-                    size: 32,
+
+                  isSelectingVersion
+                      ? Column(
+                        children:
+                            sortedVersions
+                                .map(
+                                  (verseMap) => InkWell(
+                                    onTap: () async {
+                                      setState(() {
+                                        Provider.of<VersionProvider>(
+                                          context,
+                                          listen: false,
+                                        ).setVersion(
+                                          verseMap.dbName,
+                                          verseMap.dbPath,
+                                        );
+
+                                        isSelectingVersion =
+                                            !isSelectingVersion;
+                                      });
+                                      await getTexts();
+                                    },
+                                    child: VersionCard(
+                                      color: widget.bookColor,
+                                      versionName: verseMap.nickName,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                      )
+                      : InkWell(
+                        onDoubleTap:
+                            () => setState(() {
+                              isSelectingVersion = !isSelectingVersion;
+                            }),
+                        child: VersionCard(
+                          color: widget.bookColor,
+                          versionName:
+                              Provider.of<VersionProvider>(
+                                context,
+                              ).currentVersionName,
+                        ),
+                      ),
+                  InkWell(
+                    onTap: () async {
+                      if (chapter < await _numOfChapters()) {
+                        // ignore: use_build_context_synchronously
+                        await _nextChapter(context);
+                        widget.initialVerse = 1;
+                        _scrollToInitialVerse();
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: widget.bookColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.keyboard_arrow_right,
+                        color: Colors.black,
+                        size: 32,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ],

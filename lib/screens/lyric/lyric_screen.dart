@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holy_bible/database/helpers/helper.dart';
 import 'package:holy_bible/database/repositories/hymn_repository.dart';
 import 'package:holy_bible/models/stanza.dart';
 
@@ -21,9 +22,12 @@ class _SongScreenState extends State<LyricScreen> {
   late List<Stanza> stanzasToList = [];
 
   Future<void> _getStanzas() async {
-    final List<Stanza> stanzas = await HymnRepository().getFormattedLyricsById(
-      widget.hymnId,
-    );
+    final List<Stanza> stanzas = await HymnRepository(
+      helper: DatabaseHelper(
+        dbName: 'cc.sqlite',
+        dbPath: 'lib/database/attachments/cc.sqlite',
+      ),
+    ).getFormattedLyricsById(widget.hymnId);
     setState(() {
       stanzasToList = stanzas;
     });

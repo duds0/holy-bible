@@ -5,7 +5,9 @@ import 'package:sqflite/sqflite.dart';
 class BookRepository {
   static const String tableName = 'book';
 
-  final DatabaseHelper helper = DatabaseHelper();
+  final DatabaseHelper helper;
+
+  BookRepository({required this.helper});
 
   Future<List<Book>> findAll() async {
     final Database database = await helper.database;

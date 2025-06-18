@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:holy_bible/database/repositories/chapter_and_verse_repository.dart';
 import 'package:holy_bible/providers/chapter_count.dart';
+import 'package:holy_bible/providers/version_provider.dart';
 import 'package:holy_bible/screens/texts/texts_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -25,7 +25,10 @@ class _VersesScreenState extends State<VersesScreen> {
 
   Future<void> _getVerses() async {
     widget.getChapter();
-    final List<dynamic> verses = await ChapterAndVerseRepository()
+
+    final versionDb = Provider.of<VersionProvider>(context, listen: false);
+
+    final List<dynamic> verses = await versionDb.chapterAndVerseRepository
         .getVersesOrChapters(
           widget.bookName,
           chapter: context.read<ChapterCount>().chapter,
@@ -37,7 +40,9 @@ class _VersesScreenState extends State<VersesScreen> {
   }
 
   Future<void> _updateVerses() async {
-    final List<dynamic> verses = await ChapterAndVerseRepository()
+    final versionDb = Provider.of<VersionProvider>(context, listen: false);
+
+    final List<dynamic> verses = await versionDb.chapterAndVerseRepository
         .getVersesOrChapters(
           widget.bookName,
           chapter: context.read<ChapterCount>().chapter,

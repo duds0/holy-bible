@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:holy_bible/database/repositories/book_repository.dart';
 import 'package:holy_bible/models/book.dart';
+import 'package:holy_bible/providers/version_provider.dart';
 import 'package:holy_bible/screens/books/widgets/book_card.dart';
 import 'package:holy_bible/screens/hymns/hymns_screen.dart';
 import 'package:holy_bible/utils/utils.dart';
+import 'package:provider/provider.dart';
 
 class BooksScreen extends StatefulWidget {
   final bool darkMode;
@@ -25,7 +26,10 @@ class _BooksScreensState extends State<BooksScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   Future<void> getBooks() async {
-    final List<Book> books = await BookRepository().findAll();
+    final versionDb = Provider.of<VersionProvider>(context, listen: false);
+
+    final List<Book> books = await versionDb.bookRepository.findAll();
+
     setState(() {
       allBooks = books;
       booksToList = books;

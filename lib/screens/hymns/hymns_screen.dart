@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:holy_bible/database/helpers/helper.dart';
 import 'package:holy_bible/database/repositories/hymn_repository.dart';
 import 'package:holy_bible/models/hymn.dart';
 import 'package:holy_bible/screens/hymns/widgets/hymn_card.dart';
@@ -15,7 +16,13 @@ class _HymnsScreenState extends State<HymnsScreen> {
   bool isWithTitle = false;
 
   Future<void> _getHymns() async {
-    final List<Hymn> hymns = await HymnRepository().getAllHymns();
+    final List<Hymn> hymns =
+        await HymnRepository(
+          helper: DatabaseHelper(
+            dbName: 'cc.sqlite',
+            dbPath: 'lib/database/attachments/cc.sqlite',
+          ),
+        ).getAllHymns();
 
     setState(() {
       hymnsToList = hymns;

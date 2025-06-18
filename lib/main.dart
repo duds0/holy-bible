@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:holy_bible/providers/chapter_count.dart';
+import 'package:holy_bible/providers/version_provider.dart';
 import 'package:holy_bible/screens/books/books_screen.dart';
 import 'package:holy_bible/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(ChangeNotifierProvider(create: (_) => ChapterCount(), child: MyApp()));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ChapterCount()),
+        ChangeNotifierProvider(create: (_) => VersionProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {

@@ -1,4 +1,4 @@
-import 'package:holy_bible/database/helpers/cc_helper.dart';
+import 'package:holy_bible/database/helpers/helper.dart';
 import 'package:holy_bible/models/hymn.dart';
 import 'package:holy_bible/models/stanza.dart';
 import 'package:sqflite/sqflite.dart';
@@ -7,7 +7,9 @@ import 'package:xml/xml.dart';
 class HymnRepository {
   static const String tableName = 'songs';
 
-  final DatabaseHelperCC helper = DatabaseHelperCC();
+  final DatabaseHelper helper;
+
+  HymnRepository({required this.helper});
 
   Future<List<Hymn>> getAllHymns() async {
     final Database database = await helper.database;

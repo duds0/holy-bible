@@ -1,24 +1,33 @@
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
+import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
-  static Database? _database;
+  static final Map<String, Database> _databases = {};
+
+  final String dbName;
+  final String dbPath;
+
+  DatabaseHelper({required this.dbName, required this.dbPath});
+
+  String get databaseName => dbName;
 
   Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDatabase();
-    return _database!;
+    if (_databases.containsKey(dbName)) return _databases[dbName]!;
+
+    final db = await _initDatabase();
+    _databases[dbName] = db;
+    return db;
   }
 
   Future<Database> _initDatabase() async {
     final documentsDirectory = await getApplicationDocumentsDirectory();
-    final path = join(documentsDirectory.path, 'ARA.sqlite');
+    final path = join(documentsDirectory.path, dbName);
 
     if (!await File(path).exists()) {
-      final data = await rootBundle.load('lib/database/attachments/ARA.sqlite');
+      final data = await rootBundle.load(dbPath);
       final bytes = data.buffer.asUint8List(
         data.offsetInBytes,
         data.lengthInBytes,
