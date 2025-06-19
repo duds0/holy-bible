@@ -273,17 +273,16 @@ class _TextsScreenState extends State<TextsScreen> {
                                   (verseMap) => InkWell(
                                     onTap: () async {
                                       setState(() {
-                                        Provider.of<VersionProvider>(
-                                          context,
-                                          listen: false,
-                                        ).setVersion(
-                                          verseMap.dbName,
-                                          verseMap.dbPath,
-                                        );
-
                                         isSelectingVersion =
                                             !isSelectingVersion;
                                       });
+                                      await Provider.of<VersionProvider>(
+                                        context,
+                                        listen: false,
+                                      ).setVersion(
+                                        verseMap.dbName,
+                                        verseMap.dbPath,
+                                      );
                                       await getTexts();
                                     },
                                     child: VersionCard(
